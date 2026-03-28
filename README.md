@@ -99,7 +99,7 @@ Replace **`YOUR_REAL_GITHUB_USERNAME`** with your GitHub login in every clone/pu
 
 ## RunPod ComfyUI
 
-RunPod templates differ slightly; the idea is always: **node code in `custom_nodes/`**, **deps in Comfy’s Python**, **videos in `ComfyUI/input/`** or **`path_override`**.
+RunPod templates differ slightly; the idea is always: **node code in `custom_nodes/`**, **deps in Comfy’s Python**, **videos in `ComfyUI/input/`** (upload or copy).
 
 ### A. One-time setup on the pod
 
@@ -139,7 +139,7 @@ RunPod templates differ slightly; the idea is always: **node code in `custom_nod
 ### B. Persistence
 
 - Ephemeral disks: reinstall or clone into a **RunPod volume** mounted at e.g. **`/workspace`** so `custom_nodes` survives stop/start.
-- Put large videos on the same volume; reference them with **`path_override`** or copy into **`ComfyUI/input/`**.
+- Put large videos on the same volume; place them under **`ComfyUI/input/`** (or a subfolder) so they appear in the **video** dropdown.
 
 ### C. Sharing with teammates
 
