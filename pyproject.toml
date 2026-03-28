@@ -18,9 +18,8 @@ classifiers = [
 dependencies = { file = ["requirements.txt"] }
 
 [project.urls]
-# Must match the real GitHub repo (change if yours is not under ilyaduganov)
-Repository = "https://github.com/ilyaduganov/ComfyUI-VideoSlice"
-"Bug Tracker" = "https://github.com/ilyaduganov/ComfyUI-VideoSlice/issues"
+Repository = "https://github.com/youngfulu/ComfyUI-VideoSlice"
+"Bug Tracker" = "https://github.com/youngfulu/ComfyUI-VideoSlice/issues"
 
 [tool.comfy]
 PublisherId = "ftfftft"
