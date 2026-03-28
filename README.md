@@ -153,14 +153,16 @@ There is no separate “merge into ComfyUI’s GitHub list” flow. **Discoverab
 
 1. **Create a publisher** at [registry.comfy.org](https://registry.comfy.org/) (your **Publisher ID** is fixed; it appears after `@` on your profile).
 2. **Create a Registry publishing API key** under [registry.comfy.org/nodes](https://registry.comfy.org/nodes) (not a normal GitHub token).
-3. In this repo, set **`PublisherId`** in **`pyproject.toml`** (replace `YOUR_PUBLISHER_ID`).
+3. **`PublisherId`** is set in **`pyproject.toml`** (registry **ftfftft**).
 4. Install **[comfy-cli](https://docs.comfy.org/comfy-cli/getting-started)** and publish:
 
    ```bash
    comfy node publish
    ```
 
-   Or use **GitHub Actions**: add repo secret **`REGISTRY_ACCESS_TOKEN`** with that API key; pushes that change **`pyproject.toml`** on **`main`** run [`.github/workflows/publish-to-comfy-registry.yml`](.github/workflows/publish-to-comfy-registry.yml).
+   **GitHub Actions:** add secret **`REGISTRY_ACCESS_TOKEN`** (Comfy Registry key). Workflow file: [`.github/workflows/publish-to-comfy-registry.yml`](.github/workflows/publish-to-comfy-registry.yml).
+
+   **If `git push` is rejected** with *“refusing to allow a Personal Access Token … without `workflow` scope”*: your **GitHub** token (used for git, not the Registry key) must include the **`workflow`** scope — GitHub → Developer settings → edit the PAT → enable **workflow** (classic) or **Workflows** (fine-grained). Then push again.
 
 5. After publish, users can install via Manager / `comfy node install ib-video-slicer` (see registry for the exact id).
 

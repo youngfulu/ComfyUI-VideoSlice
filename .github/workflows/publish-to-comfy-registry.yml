@@ -1,5 +1,6 @@
-# Publishes to https://registry.comfy.org/ when pyproject.toml version changes on main.
-# Add repo secret REGISTRY_ACCESS_TOKEN (Comfy Registry publishing API key from registry.comfy.org/nodes).
+# Publishes to https://registry.comfy.org/ when pyproject.toml changes on main.
+# Repo secret: REGISTRY_ACCESS_TOKEN (Comfy Registry publishing key from registry.comfy.org/nodes).
+# Your GitHub PAT used for `git push` must include the `workflow` scope to push this file.
 name: Publish to Comfy Registry
 on:
   workflow_dispatch:
