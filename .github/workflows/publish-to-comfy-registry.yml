@@ -4,7 +4,9 @@
 # Setup (once):
 # 1. Comfy Registry → create publisher + publishing API key (NOT a GitHub token).
 # 2. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
-#    Name: REGISTER_ACTION_COMFYUI   Value: Comfy Registry publishing key
+#    Name: REGISTER_ACTION_COMFYUI
+#    Value: ONLY the "Publishing" / API key from https://registry.comfy.org/nodes (publisher ftfftft).
+#    If Actions log shows: Invalid personal access token — the secret is NOT a GitHub ghp_/github_pat_ token.
 # 3. Bump [project].version in pyproject.toml when you want a new release; push to main.
 #
 # Git: pushing this file needs a GitHub PAT with `workflow` scope (or add via GitHub web UI).
