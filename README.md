@@ -2,6 +2,34 @@
 
 Custom ComfyUI node that reads `.mov` / `.mp4` and outputs **one frame** as an **IMAGE** (plus sizes, counters, and a text readout).
 
+### Before you copy commands
+
+- **`YOUR_REAL_GITHUB_USERNAME`** (or any `YOUR_…` URL in this doc) is a **placeholder**. Use your real login, e.g. `https://github.com/octocat/ComfyUI-VideoSlice.git`. **Repository not found** means the URL is wrong or the repo was not created on GitHub yet.
+- **`/workspace/...` paths are for RunPod (Linux pods) only.** On your **Mac**, that folder does not exist—use [Local Mac (no GitHub yet)](#local-mac-comfyui-no-github-yet) or your real Comfy path.
+- **Do not paste whole blocks including lines that start with `#`** unless you know they are comments. If the shell says `command not found: #`, you pasted a comment line as a command.
+- **`cd: too many arguments`:** Usually a bad paste (extra words on the `cd` line) or a “smart” `#` character. Run `cd` on its own line with **only** the path, in quotes if the path has spaces.
+
+---
+
+## Local Mac ComfyUI (no GitHub yet)
+
+If the repo is not on GitHub yet, copy the folder into your local Comfy install:
+
+```bash
+# Example: adjust COMFY to where your ComfyUI lives
+COMFY="$HOME/path/to/ComfyUI"
+cp -R "/Users/ilyaduganov/Desktop/Comfy/Sliser__video/ComfyUI-VideoSlice" "$COMFY/custom_nodes/"
+```
+
+Then install deps with the **same** Python as Comfy:
+
+```bash
+cd "$COMFY/custom_nodes/ComfyUI-VideoSlice"
+pip install -r requirements.txt
+```
+
+Restart ComfyUI.
+
 ---
 
 ## Install from GitHub (any machine)
@@ -10,7 +38,7 @@ Custom ComfyUI node that reads `.mov` / `.mp4` and outputs **one frame** as an *
 
    ```bash
    cd /path/to/ComfyUI/custom_nodes
-   git clone https://github.com/YOUR_USERNAME/ComfyUI-VideoSlice.git
+   git clone https://github.com/YOUR_REAL_GITHUB_USERNAME/ComfyUI-VideoSlice.git
    ```
 
 2. Install **opencv-python** with the **same Python / pip** that runs ComfyUI:
@@ -32,7 +60,7 @@ Custom ComfyUI node that reads `.mov` / `.mp4` and outputs **one frame** as an *
 
 ## Publish this repo on GitHub
 
-From the folder that contains this README:
+From the folder that contains this README (skip **`git init`** if `.git` already exists):
 
 ```bash
 git init
@@ -40,15 +68,22 @@ git add .
 git commit -m "Initial commit: ib video slicer custom node"
 ```
 
-On [github.com/new](https://github.com/new): create a repository named **`ComfyUI-VideoSlice`** (no template). Then:
+On [github.com/new](https://github.com/new): create a repository named **`ComfyUI-VideoSlice`** (empty repo, no template). Skip **`git init`** below if this folder is already a git repo.
 
 ```bash
 git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/ComfyUI-VideoSlice.git
+git remote add origin https://github.com/YOUR_REAL_GITHUB_USERNAME/ComfyUI-VideoSlice.git
 git push -u origin main
 ```
 
-Replace **`YOUR_USERNAME`** in the clone URL in this README when you share the project.
+If you see **remote origin already exists**, do not run `remote add` again—update the URL:
+
+```bash
+git remote set-url origin https://github.com/YOUR_REAL_GITHUB_USERNAME/ComfyUI-VideoSlice.git
+git push -u origin main
+```
+
+Replace **`YOUR_REAL_GITHUB_USERNAME`** with your GitHub login in every clone/push URL.
 
 ---
 
@@ -65,12 +100,14 @@ RunPod templates differ slightly; the idea is always: **node code in `custom_nod
    ls /workspace/ComfyUI/custom_nodes 2>/dev/null || ls /workspace/comfyui/custom_nodes 2>/dev/null
    ```
 
-3. Clone **this repo** into `custom_nodes`:
+3. `cd` into **`custom_nodes`** on the pod (path varies by template; common: `/workspace/ComfyUI/custom_nodes`). Run **`cd` alone on one line**—no extra words after the path.
 
    ```bash
-   cd /workspace/ComfyUI/custom_nodes   # adjust if your template uses another path
-   git clone https://github.com/YOUR_USERNAME/ComfyUI-VideoSlice.git
+   cd /workspace/ComfyUI/custom_nodes
+   git clone https://github.com/YOUR_REAL_GITHUB_USERNAME/ComfyUI-VideoSlice.git
    ```
+
+   If that directory does not exist, find Comfy first: `find /workspace -maxdepth 4 -type d -name custom_nodes 2>/dev/null`
 
 4. Install dependencies:
 
@@ -83,7 +120,7 @@ RunPod templates differ slightly; the idea is always: **node code in `custom_nod
    If the script cannot find pip, locate Comfy’s venv and set **`COMFYUI_PIP`**:
 
    ```bash
-   export COMFYUI_PIP=/workspace/ComfyUI/venv/bin/pip   # example
+   export COMFYUI_PIP=/workspace/ComfyUI/venv/bin/pip
    bash install_deps.sh
    ```
 
