@@ -60,6 +60,16 @@ Restart ComfyUI.
 
 ## Publish this repo on GitHub
 
+**Fastest (GitHub CLI):** install and log in once (`brew install gh`, then `gh auth login`), then from this repo:
+
+```bash
+bash create_github_repo.sh
+```
+
+That creates **`ComfyUI-VideoSlice`** under your GitHub user and pushes **`main`**.
+
+---
+
 From the folder that contains this README (skip **`git init`** if `.git` already exists):
 
 ```bash
