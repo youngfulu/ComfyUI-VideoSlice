@@ -1,6 +1,6 @@
 # ComfyUI-VideoSlice — **ib video slicer**
 
-Custom ComfyUI node that reads `.mov` / `.mp4` and outputs **one frame** as an **IMAGE** (plus sizes, counters, and a text readout).
+Custom ComfyUI node that reads `.mov` / `.mp4` and outputs **one frame** as an **IMAGE** (plus sizes, slice index, and file frame counters).
 
 ### Before you copy commands
 
@@ -184,20 +184,20 @@ Docs: [Publishing nodes](https://docs.comfy.org/registry/publishing), [pyproject
 | **frame_mode** | **increment** / **decrement** / **random** over the slice list (per-video index state; **random** uses a new internal seed each run). |
 | **lag_on** | ~50%: after choosing slice index, add random `Δ ∈ [-7,-1]∪[1,7]` in **slice-index** space, clamped. |
 | **loop_on** / **loop_every_n_frames** | Wrap window for increment/decrement. |
-| **start_frame** … **skip_every_n_frames** | Build slice list. |
+| **start_frame** … **skip_every_n_frames** | Build slice list (from **start** through **end**, step **skip_every_n**). |
 
 ### Outputs
 
 | Output | Meaning |
 |--------|---------|
-| **video_frame** | **INT** — frame index **in the file** OpenCV reads (timeline index). |
-| **slice_index** | **INT** — index in the **slice list** (0…n-1 after skip rules). |
-| **frame_readout** | **STRING** — debug text: slice, file frame, mode, optional `lag a→b`. |
 | **image**, **image_width**, **image_height** | Usual IMAGE outputs. |
+| **total_frames_count** | **INT** — `CAP_PROP_FRAME_COUNT` for the file (total frames reported by the container/decoder). |
+| **current_frame_count** | **INT** — index **in the file** of the decoded frame (same timeline index OpenCV seeks to). |
+| **slice_index** | **INT** — index in the **slice list** (0…n−1 after start/end/skip-every-n). |
 
 ### Slice list
 
-Range from **start** + **skip_first** through **end** (`-1` = last), step **skip_every_n**. Then **frame_mode** + optional **lag**.
+Range from **start** through **end** (`-1` = last), step **skip_every_n**. Then **frame_mode** + optional **lag**.
 
 **Breaking:** old widgets **random_frame**, **random_seed**, **current_frame_index** removed — use **frame_mode** and **lag_on**. Saved **every_nth_frame** is still read if present.
 

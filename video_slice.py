@@ -147,7 +147,6 @@ class IBVideoSlicer:
             ),
             "start_frame": ("INT", {"default": 0, "min": 0, "max": 2**31 - 1, "step": 1, "display": "number"}),
             "end_frame": ("INT", {"default": -1, "min": -1, "max": 2**31 - 1, "step": 1, "display": "number"}),
-            "skip_first_n_frames": ("INT", {"default": 0, "min": 0, "max": 2**31 - 1, "step": 1, "display": "number"}),
             "skip_every_n_frames": (
                 "INT",
                 {
@@ -170,8 +169,15 @@ class IBVideoSlicer:
             },
         }
 
-    RETURN_TYPES = ("IMAGE", "INT", "INT", "INT", "INT", "STRING")
-    RETURN_NAMES = ("image", "image_width", "image_height", "slice_index", "video_frame", "frame_readout")
+    RETURN_TYPES = ("IMAGE", "INT", "INT", "INT", "INT", "INT")
+    RETURN_NAMES = (
+        "image",
+        "image_width",
+        "image_height",
+        "total_frames_count",
+        "current_frame_count",
+        "slice_index",
+    )
     FUNCTION = "slice_frame"
     CATEGORY = "video"
 
@@ -180,7 +186,7 @@ class IBVideoSlicer:
         # Increment/decrement/lag/random must not be cached; input folder still tracked for new uploads
         return (time.time_ns(), _input_dir_fingerprint())
 
-    def slice_frame(self, frame_mode, lag_on, loop_on, loop_every_n_frames, start_frame, end_frame, skip_first_n_frames, skip_every_n_frames, video, **kwargs):
+    def slice_frame(self, frame_mode, lag_on, loop_on, loop_every_n_frames, start_frame, end_frame, skip_every_n_frames, video, **kwargs):
         if not HAS_CV2:
             raise ModuleNotFoundError(
                 "OpenCV (opencv-python) is required. Install: pip install opencv-python"
@@ -209,7 +215,7 @@ class IBVideoSlicer:
             if total_frames <= 0:
                 raise RuntimeError("Video has no frames or frame count unknown.")
 
-            effective_start = start_frame + skip_first_n_frames
+            effective_start = start_frame
             effective_end = end_frame if end_frame >= 0 else (total_frames - 1)
             effective_end = min(effective_end, total_frames - 1)
 
@@ -239,7 +245,6 @@ class IBVideoSlicer:
             else:
                 idx = _next_index_increment(path_key, n, wrap)
 
-            idx_before_lag = idx
             idx = _apply_lag(idx, n, lag_on)
 
             video_frame_number = indices[idx]
@@ -254,11 +259,7 @@ class IBVideoSlicer:
             image = torch.from_numpy(img_float)[None, ...]
 
             height, width = image.shape[1], image.shape[2]
-            readout = (
-                f"slice {idx + 1}/{n} | file frame {video_frame_number} | mode {frame_mode}"
-                + (f" | lag {idx_before_lag}→{idx}" if idx != idx_before_lag else "")
-            )
-            return (image, width, height, idx, video_frame_number, readout)
+            return (image, width, height, total_frames, video_frame_number, idx)
 
         finally:
             cap.release()
