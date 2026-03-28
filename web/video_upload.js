@@ -84,11 +84,16 @@ ComfyWidgets.VIDEOUPLOAD = function (node, inputName, inputData, app) {
 	return { widget: uploadWidget };
 };
 
+const SLICER_NODE_NAMES = new Set(["IBVideoSlicer", "VideoSliceFrame"]);
+
 app.registerExtension({
 	name: "ComfyUI-VideoSlice.UploadVideo",
 	async beforeRegisterNodeDef(nodeType, nodeData, app) {
-		if (nodeData?.input?.required?.video?.[1]?.video_upload === true) {
-			nodeData.input.required.upload_video = ["VIDEOUPLOAD", { widget: "video" }];
-		}
+		if (!nodeData?.name || !SLICER_NODE_NAMES.has(nodeData.name)) return;
+		if (!nodeData.input?.required?.video) return;
+		// One upload button only: same key as Load Image ("upload"). Drop legacy duplicate key.
+		delete nodeData.input.required.upload_video;
+		if (nodeData.input.required.upload) return;
+		nodeData.input.required.upload = ["VIDEOUPLOAD", { widget: "video" }];
 	},
 });

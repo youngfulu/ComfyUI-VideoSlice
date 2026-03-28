@@ -1,6 +1,6 @@
 """
 ComfyUI custom node: slice .mov / .mp4 and output one frame as IMAGE.
-Upload via "choose file to upload" (frontend) or drag video into input/; optional path_override.
+Upload via "choose file to upload" (frontend) or place files under ComfyUI input/.
 """
 
 import os
@@ -71,9 +71,6 @@ def _input_dir_fingerprint():
 
 
 def _resolve_video_path(**kwargs):
-    path_override = (kwargs.get("path_override") or "").strip()
-    if path_override and os.path.isfile(path_override):
-        return path_override
     if "video" in kwargs:
         video_name = kwargs["video"]
         if HAS_FOLDER_PATHS and video_name:
@@ -167,22 +164,9 @@ class IBVideoSlicer:
             "required": {
                 "video": (
                     video_files if video_files else [""],
-                    {
-                        "default": video_files[0] if video_files else "",
-                        "video_upload": True,
-                    },
+                    {"default": video_files[0] if video_files else ""},
                 ),
                 **common,
-            },
-            "optional": {
-                "path_override": (
-                    "STRING",
-                    {
-                        "default": "",
-                        "multiline": False,
-                        "placeholder": "Optional full server path (overrides video if file exists)",
-                    },
-                ),
             },
         }
 
@@ -194,7 +178,7 @@ class IBVideoSlicer:
     @classmethod
     def IS_CHANGED(cls, **kwargs):
         # Increment/decrement/lag/random must not be cached; input folder still tracked for new uploads
-        return (time.time_ns(), _input_dir_fingerprint(), kwargs.get("path_override", ""))
+        return (time.time_ns(), _input_dir_fingerprint())
 
     def slice_frame(self, frame_mode, lag_on, loop_on, loop_every_n_frames, start_frame, end_frame, skip_first_n_frames, skip_every_n_frames, video, **kwargs):
         if not HAS_CV2:
@@ -204,11 +188,12 @@ class IBVideoSlicer:
         if "every_nth_frame" in kwargs and kwargs["every_nth_frame"] is not None:
             skip_every_n_frames = max(1, int(kwargs["every_nth_frame"]))
 
-        # Optional inputs (e.g. path_override) are in **kwargs — do not duplicate named args.
         kw = {k: v for k, v in kwargs.items() if k != "video"}
         path = _resolve_video_path(video=video, **kw)
         if not path or not os.path.isfile(path):
-            raise FileNotFoundError(f"Video file not found. Use upload, pick from list, or set path_override. Got: {path!r}")
+            raise FileNotFoundError(
+                f"Video file not found. Upload or choose a file in the video list, or put .mp4/.mov in input/. Got: {path!r}"
+            )
 
         lower = path.lower()
         if not (lower.endswith(".mp4") or lower.endswith(".mov")):

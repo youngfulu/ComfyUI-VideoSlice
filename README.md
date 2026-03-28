@@ -174,9 +174,8 @@ Docs: [Publishing nodes](https://docs.comfy.org/registry/publishing), [pyproject
 
 ### Video
 
-- **choose file to upload** — uploads `.mp4`/`.mov` into `input/` (same API as image upload); refreshes the **video** list.
-- **video** — file under `input/`.
-- **path_override** — optional full server path if it exists.
+- **choose file to upload** — one button; uploads `.mp4`/`.mov` into `input/` (same API as image upload); refreshes the **video** list.
+- **video** — file under `input/` (relative path / subfolders allowed).
 
 ### Inputs
 
