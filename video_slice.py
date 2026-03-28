@@ -27,6 +27,9 @@ VIDEO_EXTENSIONS = (".mp4", ".mov")
 # Last slice-list index per absolute video path (for increment / decrement)
 _SLICE_INDEX_STATE: dict[str, int] = {}
 
+# Last applied lag delta per video path (lag_on); next applied delta never repeats it
+_LAST_LAG_DELTA: dict[str, int] = {}
+
 
 def _get_video_list_from_input():
     if not HAS_FOLDER_PATHS:
@@ -108,20 +111,25 @@ def _next_index_decrement(path_key: str, n: int, wrap: int) -> int:
     return idx
 
 
-def _apply_lag(idx: int, n: int, lag_on: bool) -> int:
+def _apply_lag(idx: int, n: int, lag_on: bool, path_key: str) -> int:
     if not lag_on or n <= 1:
         return idx
     if random.random() >= 0.5:
         return idx
-    deltas = [d for d in range(-7, 8) if d != 0]
+    deltas = [d for d in range(-3, 4) if d != 0]
+    prev = _LAST_LAG_DELTA.get(path_key)
+    if prev is not None:
+        deltas = [d for d in deltas if d != prev]
     delta = random.choice(deltas)
+    _LAST_LAG_DELTA[path_key] = delta
     return min(max(0, idx + delta), n - 1)
 
 
 class IBVideoSlicer:
     """
     Video → single IMAGE frame. frame_mode: increment / decrement / random over slice list.
-    Optional lag: 50% chance to nudge slice index by ±1…±7 (clamped).
+    Optional lag: 50% chance to nudge slice index by ±1…±3 (clamped); each applied delta
+    never repeats the previous applied delta for the same video.
     """
 
     @classmethod
@@ -169,13 +177,12 @@ class IBVideoSlicer:
             },
         }
 
-    RETURN_TYPES = ("IMAGE", "INT", "INT", "INT", "INT", "INT")
+    RETURN_TYPES = ("IMAGE", "INT", "INT", "INT", "INT")
     RETURN_NAMES = (
         "image",
         "image_width",
         "image_height",
         "total_frames_count",
-        "current_frame_count",
         "slice_index",
     )
     FUNCTION = "slice_frame"
@@ -245,7 +252,7 @@ class IBVideoSlicer:
             else:
                 idx = _next_index_increment(path_key, n, wrap)
 
-            idx = _apply_lag(idx, n, lag_on)
+            idx = _apply_lag(idx, n, lag_on, path_key)
 
             video_frame_number = indices[idx]
 
@@ -259,7 +266,7 @@ class IBVideoSlicer:
             image = torch.from_numpy(img_float)[None, ...]
 
             height, width = image.shape[1], image.shape[2]
-            return (image, width, height, total_frames, video_frame_number, idx)
+            return (image, width, height, total_frames, idx)
 
         finally:
             cap.release()
