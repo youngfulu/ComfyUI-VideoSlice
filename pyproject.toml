@@ -18,12 +18,10 @@ classifiers = [
 dependencies = { file = ["requirements.txt"] }
 
 [project.urls]
+# Must match the real GitHub repo (change if yours is not under ilyaduganov)
 Repository = "https://github.com/ilyaduganov/ComfyUI-VideoSlice"
 "Bug Tracker" = "https://github.com/ilyaduganov/ComfyUI-VideoSlice/issues"
 
 [tool.comfy]
-# Create a publisher at https://registry.comfy.org/ — your id is shown after @ on your profile.
-PublisherId = "YOUR_PUBLISHER_ID"
+PublisherId = "ftfftft"
 DisplayName = "ib video slicer"
-# Optional: square icon URL (max 400×400), e.g. raw GitHub URL to an icon.png in this repo
-# Icon = "https://raw.githubusercontent.com/ilyaduganov/ComfyUI-VideoSlice/main/icon.png"
