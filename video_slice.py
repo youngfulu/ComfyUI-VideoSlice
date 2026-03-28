@@ -204,7 +204,9 @@ class IBVideoSlicer:
         if "every_nth_frame" in kwargs and kwargs["every_nth_frame"] is not None:
             skip_every_n_frames = max(1, int(kwargs["every_nth_frame"]))
 
-        path = _resolve_video_path(video=video, path_override=kwargs.get("path_override"), **kwargs)
+        # Optional inputs (e.g. path_override) are in **kwargs — do not duplicate named args.
+        kw = {k: v for k, v in kwargs.items() if k != "video"}
+        path = _resolve_video_path(video=video, **kw)
         if not path or not os.path.isfile(path):
             raise FileNotFoundError(f"Video file not found. Use upload, pick from list, or set path_override. Got: {path!r}")
 
