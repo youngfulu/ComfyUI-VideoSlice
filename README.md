@@ -145,6 +145,27 @@ RunPod templates differ slightly; the idea is always: **node code in `custom_nod
 
 They use the **same `git clone` URL** into their pod’s `custom_nodes`, run **`install_deps.sh`** (or `pip install -r requirements.txt`), restart Comfy. No drag-and-drop install for the node itself—only media goes through the Comfy **Input** UI.
 
+---
+
+## Comfy Registry (shows in ComfyUI-Manager)
+
+There is no separate “merge into ComfyUI’s GitHub list” flow. **Discoverability** for installs like *Manager → Install Custom Nodes* comes from the **[Comfy Registry](https://registry.comfy.org/)**, which ComfyUI-Manager uses.
+
+1. **Create a publisher** at [registry.comfy.org](https://registry.comfy.org/) (your **Publisher ID** is fixed; it appears after `@` on your profile).
+2. **Create a Registry publishing API key** under [registry.comfy.org/nodes](https://registry.comfy.org/nodes) (not a normal GitHub token).
+3. In this repo, set **`PublisherId`** in **`pyproject.toml`** (replace `YOUR_PUBLISHER_ID`).
+4. Install **[comfy-cli](https://docs.comfy.org/comfy-cli/getting-started)** and publish:
+
+   ```bash
+   comfy node publish
+   ```
+
+   Or use **GitHub Actions**: add repo secret **`REGISTRY_ACCESS_TOKEN`** with that API key; pushes that change **`pyproject.toml`** on **`main`** run [`.github/workflows/publish-to-comfy-registry.yml`](.github/workflows/publish-to-comfy-registry.yml).
+
+5. After publish, users can install via Manager / `comfy node install ib-video-slicer` (see registry for the exact id).
+
+Docs: [Publishing nodes](https://docs.comfy.org/registry/publishing), [pyproject spec](https://docs.comfy.org/registry/specifications).
+
 ## Node: **ib video slicer**
 
 **Category:** `video`  
