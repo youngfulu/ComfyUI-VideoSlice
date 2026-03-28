@@ -168,54 +168,39 @@ There is no separate “merge into ComfyUI’s GitHub list” flow. **Discoverab
 
 Docs: [Publishing nodes](https://docs.comfy.org/registry/publishing), [pyproject spec](https://docs.comfy.org/registry/specifications).
 
-## Node: **ib video slicer**
+## Node: **ib video slicer** (v1.1)
 
-**Category:** `video`  
-**Type IDs:** `IBVideoSlicer` (new) or `VideoSliceFrame` (legacy saves — same node).
+**Category:** `video` · **Type IDs:** `IBVideoSlicer` / `VideoSliceFrame`.
 
-### Select / upload video (no separate button)
+### Video
 
-ComfyUI custom nodes cannot add a real “Upload” button in the graph. Use this workflow:
-
-1. Open the **Input** sidebar in ComfyUI (or put files in `ComfyUI/input/` on the server).
-2. **Drag-and-drop** your `.mp4` / `.mov` there (same as “upload”).
-3. In the node, choose the file from the **video** dropdown.  
-4. Optional: **path_override** = full server path (e.g. RunPod `/workspace/...`) to bypass the list.
-
-After adding files, reload the page or run once; **IS_CHANGED** uses the input folder fingerprint so new files are noticed.
+- **choose file to upload** — uploads `.mp4`/`.mov` into `input/` (same API as image upload); refreshes the **video** list.
+- **video** — file under `input/`.
+- **path_override** — optional full server path if it exists.
 
 ### Inputs
 
 | Input | Description |
 |--------|-------------|
-| **video** | Dropdown of videos under ComfyUI `input/` (when any exist). |
-| **path_override** | Full path overrides the dropdown. |
-| **video_path** | Used when no videos are in `input/` (remote / empty input). |
-| **random_frame** | On = pick a random frame from the slice list (ignores **current_frame_index** for selection). |
-| **random_seed** | If random is on: **0** = different frame each run; **>0** = stable random for that seed. |
-| **loop_on** | On = wrap **current_frame_index** with modulo (see **loop_every_n_frames**). |
-| **loop_every_n_frames** | With loop on: **0** = wrap over the **full** slice list; **N > 0** = wrap only over the **first N** entries in that list. |
-| **start_frame** / **end_frame** | Range in the file ( **end_frame** = **-1** = last frame ). |
-| **skip_first_n_frames** | Added on top of **start_frame** before building the slice list. |
-| **skip_every_n_frames** | **1** = every frame in range; **2** = every 2nd; **3** = every 3rd, … |
-| **current_frame_index** | 0-based index into the slice list (ignored when random is on). |
+| **frame_mode** | **increment** / **decrement** / **random** over the slice list (per-video index state; **random** uses a new internal seed each run). |
+| **lag_on** | ~50%: after choosing slice index, add random `Δ ∈ [-7,-1]∪[1,7]` in **slice-index** space, clamped. |
+| **loop_on** / **loop_every_n_frames** | Wrap window for increment/decrement. |
+| **start_frame** … **skip_every_n_frames** | Build slice list. |
 
 ### Outputs
 
-| Output | Type | Description |
-|--------|------|-------------|
-| **image** | IMAGE | Selected frame (batch 1). |
-| **image_width** / **image_height** | INT | Pixel size. |
-| **slice_index** | INT | 0-based index into the slice list for this run. |
-| **video_frame** | INT | Actual frame index inside the video file. |
-| **frame_readout** | STRING | Human-readable status, e.g. `slice 3/120 | video frame 42 | sequential loop`. |
+| Output | Meaning |
+|--------|---------|
+| **video_frame** | **INT** — frame index **in the file** OpenCV reads (timeline index). |
+| **slice_index** | **INT** — index in the **slice list** (0…n-1 after skip rules). |
+| **frame_readout** | **STRING** — debug text: slice, file frame, mode, optional `lag a→b`. |
+| **image**, **image_width**, **image_height** | Usual IMAGE outputs. |
 
-### Selection order
+### Slice list
 
-1. Build indices from **start** + **skip_first_n_frames** through **end**, stepping by **skip_every_n_frames**.
-2. If **random_frame** → random **slice_index** (seeded if **random_seed** > 0).
-3. Else if **loop_on** → `current_frame_index % window` (window from **loop_every_n_frames** as above).
-4. Else → clamp **current_frame_index** to `[0, len(indices)-1]`.
+Range from **start** + **skip_first** through **end** (`-1` = last), step **skip_every_n**. Then **frame_mode** + optional **lag**.
+
+**Breaking:** old widgets **random_frame**, **random_seed**, **current_frame_index** removed — use **frame_mode** and **lag_on**. Saved **every_nth_frame** is still read if present.
 
 ### Migrating old workflows
 
