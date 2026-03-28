@@ -1,7 +1,16 @@
-# Publishes to https://registry.comfy.org/ when pyproject.toml changes on main.
-# Repo secret: REGISTRY_ACCESS_TOKEN (Comfy Registry publishing key from registry.comfy.org/nodes).
-# Your GitHub PAT used for `git push` must include the `workflow` scope to push this file.
-name: Publish to Comfy Registry
+# Auto-publish to Comfy Registry when pyproject.toml version changes on main.
+# Uses: https://github.com/Comfy-Org/publish-node-action
+#
+# Setup (once):
+# 1. Comfy Registry → create publisher + publishing API key (NOT a GitHub token).
+# 2. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+#    Name: REGISTRY_ACCESS_TOKEN   Value: that registry key
+# 3. Bump [project].version in pyproject.toml when you want a new release; push to main.
+#
+# Git: pushing this file needs a GitHub PAT with `workflow` scope (or add via GitHub web UI).
+
+name: Publish to Comfy registry
+
 on:
   workflow_dispatch:
   push:
@@ -12,9 +21,11 @@ on:
 
 jobs:
   publish-node:
+    name: Publish Custom Node to registry
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out code
+        uses: actions/checkout@v4
       - name: Publish Custom Node
         uses: Comfy-Org/publish-node-action@main
         with:

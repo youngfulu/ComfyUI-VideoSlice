@@ -160,9 +160,9 @@ There is no separate “merge into ComfyUI’s GitHub list” flow. **Discoverab
    comfy node publish
    ```
 
-   **GitHub Actions:** add secret **`REGISTRY_ACCESS_TOKEN`** (Comfy Registry key). Workflow file: [`.github/workflows/publish-to-comfy-registry.yml`](.github/workflows/publish-to-comfy-registry.yml).
+   **GitHub Actions (auto-publish):** same flow as [Comfy-Org/publish-node-action](https://github.com/Comfy-Org/publish-node-action): add repo secret **`REGISTRY_ACCESS_TOKEN`** with your **Comfy Registry** publishing key ([registry.comfy.org/nodes](https://registry.comfy.org/nodes)). Workflow: [`.github/workflows/publish-to-comfy-registry.yml`](.github/workflows/publish-to-comfy-registry.yml) — runs on **`pyproject.toml`** changes to **`main`** or **workflow_dispatch**. Bump **`version`** in `pyproject.toml` for each release.
 
-   **If `git push` is rejected** with *“refusing to allow a Personal Access Token … without `workflow` scope”*: your **GitHub** token (used for git, not the Registry key) must include the **`workflow`** scope — GitHub → Developer settings → edit the PAT → enable **workflow** (classic) or **Workflows** (fine-grained). Then push again.
+   **If `git push` rejects workflow files:** your **GitHub** PAT needs the **`workflow`** scope (separate from `REGISTRY_ACCESS_TOKEN`).
 
 5. After publish, users can install via Manager / `comfy node install ib-video-slicer` (see registry for the exact id).
 
